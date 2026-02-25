@@ -1,5 +1,3 @@
-# airbnb-sql-data-mart
-SQL database project for an Airbnb-style booking platform.
 # 🏠 Airbnb Database System – Complete Data Mart Implementation
 
 A fully normalized, production-ready relational database system for an Airbnb‑style property rental platform. This project demonstrates advanced SQL concepts including triple relationships, recursive relationships, stored procedures, triggers, and views.
