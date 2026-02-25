@@ -36,162 +36,93 @@ This database system supports a fully functional property rental platform with:
 ## 🗄️ Database Schema – 22 Tables
 
 ### Core Entities
-| Table | Description | Key Attributes |
-|-------|-------------|----------------|
-| `User` | Platform users (guests, hosts, admin) | UserID, RoleID, Name, Email, Phone, VerifiedStatus |
-| `Role` | User roles and permissions | RoleID, RoleName, Permissions |
-| `Location` | Property locations | LocationID, Address, City, Country, Coordinates |
-| `PropertyType` | Types of accommodations | TypeID, TypeName, Description |
+| Table | Description |
+|-------|-------------|
+| `User` | Platform users (guests, hosts, admin) |
+| `Role` | User roles and permissions |
+| `Location` | Property locations |
+| `PropertyType` | Types of accommodations |
 
 ### Property Management
-| Table | Description | Key Attributes |
-|-------|-------------|----------------|
-| `Property` | Property listings | PropertyID, HostID, Title, BasePrice, MaxGuests |
-| `Amenity` | Available amenities | AmenityID, AmenityName, Category |
-| `PropertyAmenity` | Bridge table (M:N) | PropertyID, AmenityID |
-| `AvailabilityCalendar` | Date-based availability | CalendarID, PropertyID, Date, IsAvailable, CustomPrice |
-| `CancellationPolicy` | Booking cancellation rules | PolicyID, PropertyID, RefundPercentage, DaysBeforeCheckin |
+| Table | Description |
+|-------|-------------|
+| `Property` | Property listings |
+| `Amenity` | Available amenities |
+| `PropertyAmenity` | Bridge table (M:N relationship) |
+| `AvailabilityCalendar` | Date-based availability |
+| `CancellationPolicy` | Booking cancellation rules |
 
 ### Transactions
-| Table | Description | Key Attributes |
-|-------|-------------|----------------|
-| `Booking` | Reservation records | BookingID, GuestID, PropertyID, Dates, TotalPrice, StatusID |
-| `BookingStatus` | Booking states | StatusID, StatusName |
-| `Payment` | Payment transactions | PaymentID, BookingID, Amount, MethodID, StatusID |
-| `PaymentMethod` | Payment types | MethodID, MethodName, Processor |
-| `PaymentStatus` | Payment states | PaymentStatusID, StatusName |
-| `Payout` | Host earnings | PayoutID, HostID, BookingID, Amount, PayoutDate |
+| Table | Description |
+|-------|-------------|
+| `Booking` | Reservation records |
+| `BookingStatus` | Booking states |
+| `Payment` | Payment transactions |
+| `PaymentMethod` | Payment types |
+| `PaymentStatus` | Payment states |
+| `Payout` | Host earnings |
 
 ### User Interactions
-| Table | Description | Key Attributes |
-|-------|-------------|----------------|
-| `Review` | Guest/host feedback (recursive) | ReviewID, BookingID, ReviewerID, RevieweeID, Rating, Comment |
-| `Message` | User communications (recursive) | MessageID, SenderID, ReceiverID, MessageText, SentDate |
-| `Dispute` | Issue tracking | DisputeID, BookingID, RaisedByID, Description, Status |
+| Table | Description |
+|-------|-------------|
+| `Review` | Guest/host feedback (recursive) |
+| `Message` | User communications (recursive) |
+| `Dispute` | Issue tracking |
 
 ### System Management
-| Table | Description | Key Attributes |
-|-------|-------------|----------------|
-| `AuditLog` | Action history | LogID, UserID, Action, EntityType, Timestamp |
-| `SocialLink` | User social profiles | LinkID, UserID, Platform, ProfileURL |
-| `HostReport` | Host performance metrics | ReportID, HostID, Period, TotalBookings, TotalRevenue, AvgRating |
-| `Verification` | Identity verification | VerificationID, UserID, DocumentType, Status |
+| Table | Description |
+|-------|-------------|
+| `AuditLog` | Action history |
+| `SocialLink` | User social profiles |
+| `HostReport` | Host performance metrics |
+| `Verification` | Identity verification |
 
 ---
 
-## 🔗 Key Relationships Implemented
+## 🔗 Key Relationships
 
 ### Triple Relationships
-   1. Booking – Guest – Property
-      └── Each booking connects a Guest (User) to a Property
+- **Booking** connects Guest, Property, and BookingStatus
+- **Payment** connects Booking, PaymentMethod, and PaymentStatus
+- **Review** connects Booking, Reviewer, and Reviewee
 
-   2. Payment – Booking – PaymentMethod
-      └── Each payment connects a Booking to a specific PaymentMethod
-
-   3. Review – Booking – User (Reviewer/Reviewee)
-      └── Each review connects a Booking with both Reviewer and Reviewee
-
+### Recursive Relationships
+- **Message:** Users can message other users
+- **Review:** Users can review other users
 
 ---
 
 ## 📊 Sample Data Statistics
 
-| Table | Row Count | Table | Row Count |
-|-------|-----------|-------|-----------|
+| Table | Count | Table | Count |
+|-------|-------|-------|-------|
 | `User` | 24 | `Role` | 4 |
 | `Property` | 22 | `Location` | 23 |
 | `Booking` | 22 | `PropertyType` | 13 |
 | `Payment` | 22 | `Amenity` | 28 |
-| `Review` | 14 | `PropertyAmenity` | 47 |
-| `Message` | 12 | `BookingStatus` | 6 |
-| `Payout` | 22 | `PaymentMethod` | 6 |
-| `Dispute` | 3 | `PaymentStatus` | 5 |
-| `AuditLog` | 5 | `HostReport` | 5 |
-| `SocialLink` | 5 | `CancellationPolicy` | 5 |
-| `Verification` | 5 | `AvailabilityCalendar` | 24 |
+| `Review` | 14 | `Message` | 12 |
 
-**Total Database Size:** ~[X] MB *(Run query below to calculate)*
-
-```sql
-SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS 'Size (MB)'
-FROM information_schema.tables WHERE table_schema = 'airbnb_db';
+---
 
 ## 🚀 Installation Guide
-Prerequisites
 
-    MySQL 8.0 or higher
-
-    MySQL Workbench (recommended) or command line client
-
-## Step-by-Step Setup
-# 1. Clone the repository
+```bash
+# Clone the repository
 git clone https://github.com/ipadeolaoluwatoyin7880/airbnb-sql-data-mart.git
 cd airbnb-sql-data-mart
 
-# 2. Create database and tables
+# Create database and tables
 mysql -u root -p < 01_create_database.sql
 mysql -u root -p airbnb_db < 02_create_tables.sql
 
-# 3. Insert sample data
+# Insert sample data
 mysql -u root -p airbnb_db < 03_insert_sample_data.sql
 
-# 4. Test the implementation
+# Test the implementation
 mysql -u root -p airbnb_db < 04_test_queries.sql
 
-# 5. Create views, procedures, triggers, functions
+# Create views, procedures, triggers, functions
 mysql -u root -p airbnb_db < 05_database_operations.sql
-
-## Using MySQL Workbench
-
-#  1. Open MySQL Workbench and connect to your server
-
-#  2. File → Open SQL Script → Select each file in order
-
-#  3. Execute (lightning bolt) for each file
-
-## ⚡ Advanced Features
-### Stored Procedures
--- Make a booking with automatic availability check
-CALL sp_make_booking(1, 1, '2024-12-01', '2024-12-05', 2, 'Early check-in');
-
--- Process payment and update booking status
-CALL sp_process_payment(1, 600.00, 1, 'TXN001');
-
-### Triggers
-
-    **trg_prevent_double_booking** – Ensures no overlapping bookings
-
-    **trg_update_host_report** – Automatically updates host earnings reports
-
-    **trg_booking_updated** – Maintains audit timestamps
-
-### Functions
--- Calculate average rating for a property
-SELECT fn_calculate_property_rating(1);
-
--- Check property availability for dates
-SELECT fn_check_availability(1, '2024-12-01', '2024-12-05');
-
-### Views
--- Property listings with host details and ratings
-SELECT * FROM vw_property_listings;
-
--- Complete booking history with payment status
-SELECT * FROM vw_booking_details;
-
--- Host performance dashboard
-SELECT * FROM vw_host_dashboard;
-
-## 🧪 Test Queries
-
-### Verify triple relationships:
-SELECT b.BookingID, CONCAT(u.FirstName, ' ', u.LastName) AS Guest,
-       p.Title AS Property, bs.StatusName
-FROM Booking b
-JOIN User u ON b.GuestID = u.UserID
-JOIN Property p ON b.PropertyID = p.PropertyID
-JOIN BookingStatus bs ON b.StatusID = bs.StatusID
-LIMIT 5;
 
 ## 📁 File Structure
 airbnb-sql-data-mart/
@@ -203,22 +134,13 @@ airbnb-sql-data-mart/
 ├── ER_Diagram.png                    # Entity Relationship Diagram
 └── README.md                         # This documentation
 
-## 🎯 Learning Outcomes
-
-This project demonstrates:
-
-✅ **Database Design** – Normalization to 3NF, ER modeling with Chen notation
-✅ **SQL Implementation** – DDL, DML, constraints, indexes
-✅ **Advanced SQL** – Views, stored procedures, triggers, functions
-✅ **Complex Relationships** – Triple relationships (3) and recursive relationships (2)
-✅ **Data Integrity** – Foreign keys, check constraints, referential integrity
-✅ **Business Logic** – Automated booking validation, payment processing
-✅ **Documentation** – Complete technical documentation with screenshots
-
 ## 👤 Author
-**Name:** IPADEOLA OLUWATOYIN ENIOLA
-**Project:** Build a Data Mart in SQL
-**GitHub:** ipadeolaoluwatoyin/airbnb-sql-data-mart
+
+Name: IPADEOLA OLUWATOYIN ENIOLA
+Matriculation: 92130758
+Course: DLBDSPBDM01 – Build a Data Mart in SQL
+Institution: IU International University of Applied Sciences
+GitHub: ipadeolaoluwatoyin7880/airbnb-sql-data-mart
 
 ## 📜 License
 
